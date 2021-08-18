@@ -34,7 +34,7 @@ My Cart
 					type:"POST",
 					data:{flag:flag,id:id,_token:_token},
 					success:function(data) {
-						
+
 					}
 				});
 			})
@@ -69,7 +69,7 @@ My Cart
 				var pid = $(this).prev().val();
 				var total = $(this).closest('td').prev().find('.cart_total_price').text().slice(0,-1);
 				var gtotal = $(this).closest('section').next().find('.gtotal').text().slice(0,-1);
-				var gtotalNew = $(this).closest('section').next().find('.gtotal').text(parseInt(gtotal) - parseInt(total) + '$'); 
+				var gtotalNew = $(this).closest('section').next().find('.gtotal').text(parseInt(gtotal) - parseInt(total) + '$');
 				var _token = $('meta[name="csrf-token"]').attr('content');
 				$.ajax({
 					url:"{{url('delete-product')}}",
@@ -98,7 +98,7 @@ My Cart
 			</ol>
 		</div>
 		<div class="table-responsive cart_info">
-			
+
 			<table class="table table-condensed">
 				<thead>
 					<tr class="cart_menu">
@@ -151,70 +151,35 @@ My Cart
 					@endif
 				</tbody>
 			</table>
-			
+
 		</div>
 	</div>
 </section> <!--/#cart_items-->
 
 <section id="do_action">
 	<div class="container">
-		<div class="heading">
-			<h3>What would you like to do next?</h3>
-			<p>Choose if you have a discount code or reward points you want to use or would like to estimate your delivery cost.</p>
-		</div>
 		<div class="row">
 			<div class="col-sm-6">
 				<div class="chose_area">
-					<ul class="user_option">
-						<li>
-							<input type="checkbox">
-							<label>Use Coupon Code</label>
-						</li>
-						<li>
-							<input type="checkbox">
-							<label>Use Gift Voucher</label>
-						</li>
-						<li>
-							<input type="checkbox">
-							<label>Estimate Shipping & Taxes</label>
-						</li>
-					</ul>
-					<ul class="user_info">
-						<li class="single_field">
-							<label>Country:</label>
-							<select>
-								<option>United States</option>
-								<option>Bangladesh</option>
-								<option>UK</option>
-								<option>India</option>
-								<option>Pakistan</option>
-								<option>Ucrane</option>
-								<option>Canada</option>
-								<option>Dubai</option>
-							</select>
-							
-						</li>
-						<li class="single_field">
-							<label>Region / State:</label>
-							<select>
-								<option>Select</option>
-								<option>Dhaka</option>
-								<option>London</option>
-								<option>Dillih</option>
-								<option>Lahore</option>
-								<option>Alaska</option>
-								<option>Canada</option>
-								<option>Dubai</option>
-							</select>
-							
-						</li>
-						<li class="single_field zip-field">
-							<label>Zip Code:</label>
-							<input type="text">
-						</li>
-					</ul>
-					<a class="btn btn-default update" href="">Get Quotes</a>
-					<a class="btn btn-default check_out" href="">Continue</a>
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible">
+                            <h4><i class="icon fa fa-check"></i> Thông báo!</h4>
+                            {{session('success')}}
+                        </div>
+                    @endif
+                    @if(session('error'))
+                            <div class="alert alert-danger alert-dismissible">
+                                <h4><i class="icon fa fa-check"></i> Thông báo!</h4>
+                                {{session('error')}}
+                            </div>
+                        @endif
+                    <form action="{{route('checkCoupon')}}" method="GET">
+                        @csrf
+                        @method('GET')
+                        <label for="">Coupon code :</label>
+                        <input autocomplete="off" type="text" name="coupon_code" placeholder="Enter the Coupon Code">&nbsp;
+                        <button type="submit" class="btn btn-sm btn-success">Hoàn thành</button>
+                    </form>
 				</div>
 			</div>
 			<div class="col-sm-6">
@@ -222,11 +187,19 @@ My Cart
 					<ul>
 						{{-- <li>Cart Sub Total <span>$59</span></li>
 						<li>Eco Tax <span>$2</span></li> --}}
-						<li>Shipping Cost <span>Free</span></li>
+                        @if(session()->get('coupon') && session('coupon')['coupon_type'] == 'percentage')
+                            <li>Coupon Code <span>{{session('coupon')['coupon']}}</span></li>
+                            <li>Giảm giá <span>{{session('coupon')['coupon_amount']}}%</span></li>
+                        @elseif(session()->get('coupon') && session('coupon')['coupon_type'] == 'fixed')
+                            <li>Coupon Code <span>{{session('coupon')['coupon']}}</span></li>
+                            <li>Giảm giá <span>{{session('coupon')['coupon_amount']}}$</span></li>
+                        @else
+						<li>Coupon Code <span></span></li>
+                        @endif
 						@if(isset($gtotal))
-						<li>Total <span class="gtotal">{{$gtotal}}$</span></li>
+						<li>Thành tiền <span class="gtotal">{{$gtotal}}$</span></li>
 						@else
-						<li>Total <span class="gtotal"></span></li>
+						<li>Thành tiền <span class="gtotal"></span></li>
 						@endif
 					</ul>
 					<a class="btn btn-default update" href="">Update</a>

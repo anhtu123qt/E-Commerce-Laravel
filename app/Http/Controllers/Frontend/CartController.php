@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\User;
 use App\History;
 use Mail;
+use App\Coupon;
 
 class CartController extends Controller
 {
@@ -29,9 +30,9 @@ class CartController extends Controller
                 'product_name' => $data['pname'],
                 'product_qty' => 1,
                 'product_price' => $data['pprice'],
-                'product_image' => $data['pimage']  
+                'product_image' => $data['pimage']
             );
-        } 
+        }
         session()->put('cart',$cart);
         echo 'Cart('.count(session('cart')).')';
     }
@@ -56,7 +57,7 @@ class CartController extends Controller
             // dd($cart);
         }
         echo 'Cart('.count(session('cart')).')';
-        
+
     }
     public function deleteProduct(Request $request) {
         $data = $request->all();
@@ -68,7 +69,7 @@ class CartController extends Controller
         echo 'Cart('.count(session('cart')).')';
     }
     public function checkout() {
-        return view('frontend.checkout');  
+        return view('frontend.checkout');
     }
     public function sendmail(Request $request) {
         if(Auth::check()) {
@@ -105,5 +106,34 @@ class CartController extends Controller
     public function orderHistory(){
         $orders = History::all();
         return view('admin.order_history',compact('orders',$orders));
+    }
+    public function checkCoupon(Request $request) {
+        $data = $request->all();
+        $coupon = Coupon::where('code',$data['coupon_code'])->first();
+        if ($coupon) {
+            $couponSession = session()->get('coupon');
+            if ($couponSession) {
+                $is_avai = 1;
+                if ($is_avai == 1) {
+                    $couponInfo = array(
+                        'coupon' => $coupon->code,
+                        'coupon_type' => $coupon->coupon_type,
+                        'coupon_amount' => $coupon->coupon_amount
+                    );
+                    session()->put('coupon',$couponInfo);
+                }
+            }else {
+                $couponInfo = array(
+                    'coupon' => $coupon->code,
+                    'coupon_type' => $coupon->coupon_type,
+                    'coupon_amount' => $coupon->coupon_amount
+                );
+                session()->put('coupon',$couponInfo);
+            }
+            session()->save();
+            return redirect()->back()->with('success','Thêm mã giảm giá thành công!');
+        }else {
+            return redirect()->back()->with('error','Không tồn tại mã giảm giá');
+        }
     }
 }

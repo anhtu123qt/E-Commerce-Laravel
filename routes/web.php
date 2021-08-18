@@ -52,6 +52,8 @@ Route::get('forgot-password','Frontend\MemberController@forgot_password')->name(
 Route::get('reset-password','Frontend\MemberController@reset_password')->name('reset_password');
 Route::get('recovery-password','Frontend\MemberController@recovery_password')->name('recovery_password');
 Route::get('update-password','Frontend\MemberController@update_password')->name('update_password');
+// Coupon
+Route::get('check-coupon','Frontend\CartController@checkCoupon')->name('checkCoupon');
 Auth::routes();
 
 // Backend
