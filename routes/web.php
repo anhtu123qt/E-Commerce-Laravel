@@ -55,6 +55,7 @@ Route::get('update-password','Frontend\MemberController@update_password')->name(
 Auth::routes();
 
 // Backend
+
 // Dasboard
 Route::get('dashboard','Admin\DashboardController@show_dashboard');
 // User
@@ -76,6 +77,7 @@ Route::group(['middleware'=> 'auth.role'], function(){
     Route::get('user_manager','Admin\UserController@user_manager')->name('user_manager');
     Route::post('assign-role','Admin\UserController@assign_role')->name('assign_role');
     Route::get('delete-user-role/{id}','Admin\UserController@delete_user_role')->name('delete_user_role');
+    Route::resource('coupon',Admin\CouponController::class);
 });
 
 
