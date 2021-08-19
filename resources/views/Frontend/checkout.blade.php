@@ -34,7 +34,7 @@ Checkout | E-Shopper
 					type:"POST",
 					data:{flag:flag,id:id,_token:_token},
 					success:function(data) {
-						
+
 					}
 				});
 			})
@@ -69,7 +69,7 @@ Checkout | E-Shopper
 				var pid = $(this).prev().val();
 				var total = $(this).closest('td').prev().find('.cart_total_price').text().slice(0,-1);
 				var gtotal = $(this).closest('tr').next().find('.gtotal').text().slice(0,-1);
-				var gtotalNew = $(this).closest('tr').next().find('.gtotal').text(parseInt(gtotal) - parseInt(total) + '$'); 
+				var gtotalNew = $(this).closest('tr').next().find('.gtotal').text(parseInt(gtotal) - parseInt(total) + '$');
 				var _token = $('meta[name="csrf-token"]').attr('content');
 				$.ajax({
 					url:"{{url('delete-product')}}",
@@ -168,17 +168,30 @@ Checkout | E-Shopper
 									<td>Exo Tax</td>
 									<td>$2</td>
 								</tr> --}}
-								<tr class="shipping-cost">
-									<td>Shipping Cost</td>
-									<td>Free</td>										
-								</tr>
 								<tr>
 									<td>Total</td>
-									@if(isset($gtotal))
-									<td><span class="gtotal">{{$gtotal}}$</span></td>
-									@else
-									<td><span class="gtotal">0$</span></td>
-									@endif
+                                    @if(isset($gtotal))
+                                        @if(session('coupon'))
+                                            @if(session('coupon')['coupon_type'] == 'percentage')
+                                                @php
+                                                    // luong giam gia
+                                                    $cAmount = ($gtotal * session('coupon')['coupon_amount'])/100;
+                                                    // so tien can thanh toan sau giam gia
+                                                    $gTotal = $gtotal - $cAmount;
+                                                @endphp
+                                                <td><span class="gtotal">{{$gTotal}}$</span></td>
+                                            @elseif(session('coupon')['coupon_type'] == 'fixed')
+                                                @php
+                                                    $gTotal = $gtotal - session('coupon')['coupon_amount'];
+                                                @endphp
+                                                <td><span class="gtotal">{{$gTotal}}$</span></td>
+                                            @endif
+                                        @else
+                                            <td><span class="gtotal">{{$gTotal}}$</span></td>
+                                        @endif
+                                    @else
+                                        <td><span class="gtotal"></span></td>
+                                    @endif
 								</tr>
 							</table>
 						</td>
@@ -197,7 +210,7 @@ Checkout | E-Shopper
 				<label><input type="checkbox"> Paypal</label>
 			</span>
 			<form action="{{route('sendmail')}}" method="GET">
-				<input type="hidden" name="total" value="@if(isset($gtotal)) @php echo $gtotal @endphp @endif">
+				<input type="hidden" name="total" value="@if(isset($gTotal))@php echo $gTotal @endphp @endif">
 				<button type="submit" class="btn btn-default order">Order</button>
 			</form>
 			@endif

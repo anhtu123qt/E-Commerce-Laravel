@@ -100,6 +100,8 @@ class CartController extends Controller
             $newOrder->user_id = $user_id;
             $newOrder->total = $gtotal;
             $newOrder->save();
+            session()->forget('cart');
+            session()->forget('coupon');
             return redirect()->back()->with('success','Đơn hàng của bạn đã được tiếp nhận!');
         }
     }
