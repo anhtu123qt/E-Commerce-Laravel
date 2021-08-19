@@ -187,20 +187,31 @@ My Cart
 					<ul>
 						{{-- <li>Cart Sub Total <span>$59</span></li>
 						<li>Eco Tax <span>$2</span></li> --}}
-                        @if(session()->get('coupon') && session('coupon')['coupon_type'] == 'percentage')
-                            <li>Coupon Code <span>{{session('coupon')['coupon']}}</span></li>
-                            <li>Giảm giá <span>{{session('coupon')['coupon_amount']}}%</span></li>
-                        @elseif(session()->get('coupon') && session('coupon')['coupon_type'] == 'fixed')
-                            <li>Coupon Code <span>{{session('coupon')['coupon']}}</span></li>
-                            <li>Giảm giá <span>{{session('coupon')['coupon_amount']}}$</span></li>
+                        @if(isset($gtotal))
+                            @if(session('coupon'))
+                                <li>Coupon Code <span>{{session('coupon')['coupon']}}</span></li>
+                                @if(session('coupon')['coupon_type'] == 'percentage')
+                                    <li>Giảm giá <span>{{session('coupon')['coupon_amount']}}%</span></li>
+                                @php
+                                    // luong giam gia
+                                    $cAmount = ($gtotal * session('coupon')['coupon_amount'])/100;
+                                    // so tien can thanh toan sau giam gia
+                                    $gTotal = $gtotal - $cAmount;
+                                @endphp
+                                    <li>Thành tiền <span class="gtotal">{{$gTotal}}$</span></li>
+                                @elseif(session('coupon')['coupon_type'] == 'fixed')
+                                    <li>Giảm giá <span>{{session('coupon')['coupon_amount']}}$</span></li>
+                                    @php
+                                        $gTotal = $gtotal - session('coupon')['coupon_amount'];
+                                    @endphp
+                                    <li>Thành tiền <span class="gtotal">{{$gTotal}}$</span></li>
+                                @endif
+                            @else
+                                <li>Thành tiền <span class="gtotal">{{$gTotal}}$</span></li>
+                            @endif
                         @else
-						<li>Coupon Code <span></span></li>
+                            <li>Thành tiền <span class="gtotal"></span></li>
                         @endif
-						@if(isset($gtotal))
-						<li>Thành tiền <span class="gtotal">{{$gtotal}}$</span></li>
-						@else
-						<li>Thành tiền <span class="gtotal"></span></li>
-						@endif
 					</ul>
 					<a class="btn btn-default update" href="">Update</a>
 					<a class="btn btn-default check_out" href="{{URL::asset('check-out')}}">Check Out</a>
