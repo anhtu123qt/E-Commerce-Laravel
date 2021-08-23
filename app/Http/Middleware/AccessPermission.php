@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Middleware;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Closure;
 use Illuminate\Support\Facades\Route;
 
@@ -16,8 +16,13 @@ class AccessPermission
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::user()->hasRole('admin')) {
+        if (Auth::user()->hasAnyRole(['admin','author'])) {
             return $next($request);
+        }
+        else {
+            if (Auth::user()->hasRole('admin')) {
+                return $next($request);
+            }
         }
         return redirect('member');
 

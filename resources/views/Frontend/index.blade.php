@@ -22,6 +22,7 @@ Home - E Shopper
 				var uid = {{$user_id}};
 				var pid = $(this).prev().prev().prev().prev().val();
 				var pimage = $(this).prev().prev().prev().val();
+				console.log(pimage);
 				var pname = $(this).prev().prev().val();
 				var pprice = $(this).prev().val();
 				var _token = $('meta[name="csrf-token"]').attr('content');
@@ -155,7 +156,7 @@ Home - E Shopper
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -213,7 +214,7 @@ Home - E Shopper
 				</div>
 			</div>
 		</div><!--/category-products-->
-		
+
 		<div class="brands_products"><!--brands_products-->
 			<h2>Brands</h2>
 			<div class="brands-name">
@@ -228,7 +229,7 @@ Home - E Shopper
 				</ul>
 			</div>
 		</div><!--/brands_products-->
-		
+
 		<div class="price-range"><!--price-range-->
 			<h2>Price Range</h2>
 			<div class="well text-center">
@@ -236,11 +237,11 @@ Home - E Shopper
 				<b class="pull-left">$ 0</b> <b class="pull-right">$ 600</b>
 			</div>
 		</div><!--/price-range-->
-		
+
 		<div class="shipping text-center"><!--shipping-->
 			<img src="{{asset('frontend/images/home/shipping.jpg')}}" alt="" />
 		</div><!--/shipping-->
-		
+
 	</div>
 	@endsection
 	<div class="features_items"><!--features_items-->
@@ -253,7 +254,7 @@ Home - E Shopper
 						<?php
 						$image = json_decode($product->product_image);
 					?>
-					<img src="./upload/product/<?php echo $user_id;?>/<?php echo $image[0];?>" alt="" />
+					<img src="./upload/product/{{$product->user_id}}/<?php echo $image[0];?>" alt="" />
 					<h2>{{$product->product_price}}$</h2>
 					<p>{{$product->product_name}}</p>
 					<a href="" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
@@ -264,12 +265,12 @@ Home - E Shopper
 						<a href="{{route('detail',$product->id)}}"><p>{{$product->product_name}}</p></a>
 						<form class="form-product">
 							<input type="hidden" value="{{$product->id}}">
-							<input type="hidden" value="./upload/product/<?php echo $user_id;?>/<?php echo $image[0];?>">
+							<input type="hidden" value="./upload/product/{{$product->user_id}}/<?php echo $image[0];?>">
 							<input type="hidden" value="{{$product->product_name}}">
 							<input type="hidden" value="{{$product->product_price}}">
 							<button type="submit" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
 						</form>
-						
+
 					</div>
 				</div>
 			</div>
@@ -281,7 +282,7 @@ Home - E Shopper
 			</div>
 		</div>
 	</div>
-	@endforeach	
+	@endforeach
 </div><!--features_items-->
 
 <div class="category-tab"><!--category-tab-->
@@ -577,7 +578,7 @@ Home - E Shopper
 
 	<div id="recommended-item-carousel" class="carousel slide" data-ride="carousel">
 		<div class="carousel-inner">
-			<div class="item active">	
+			<div class="item active">
 				<div class="col-sm-4">
 					<div class="product-image-wrapper">
 						<div class="single-products">
@@ -618,7 +619,7 @@ Home - E Shopper
 					</div>
 				</div>
 			</div>
-			<div class="item">	
+			<div class="item">
 				<div class="col-sm-4">
 					<div class="product-image-wrapper">
 						<div class="single-products">
@@ -665,7 +666,7 @@ Home - E Shopper
 		</a>
 		<a class="right recommended-item-control" href="#recommended-item-carousel" data-slide="next">
 			<i class="fa fa-angle-right"></i>
-		</a>			
+		</a>
 	</div>
 </div><!--/recommended_items-->
 

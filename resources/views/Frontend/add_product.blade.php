@@ -24,6 +24,9 @@
 		});
 	</script>
 </head>
+@section('title')
+    Add Product - E Shopper
+@endsection
 @section('menu-left_frontend_layout')
 <div class="left-sidebar">
 	<h2>ACCOUNT</h2>
@@ -48,12 +51,12 @@
 				</h4>
 			</div>
 		</div>
-	</div><!--/category-products-->				
+	</div><!--/category-products-->
 </div>
 @endsection
 @section('frontend_content')
 <div class="col-sm-9 padding-right">
-	
+
 	<h3 class="test1">Add Product</h3>
 	<form enctype="multipart/form-data" action="{{route('product.store')}}" method="POST">
 		@csrf
@@ -98,14 +101,14 @@
 		</div>
 		<div class="input-group control-group increment" >
 			<input type="file" name="filename[]" class="form-control" multiple>
-			<div class="input-group-btn"> 
+			<div class="input-group-btn">
 				<button class="btn btn-success" type="button"><i class="glyphicon glyphicon-plus"></i>Add</button>
 			</div>
 		</div>
 		<div class="clone hide">
 			<div class="control-group input-group" style="margin-top:10px">
 				<input type="file" name="filename[]" class="form-control">
-				<div class="input-group-btn"> 
+				<div class="input-group-btn">
 					<button class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i> Remove</button>
 				</div>
 			</div>
@@ -117,7 +120,7 @@
 		</div>
 
 		<button type="submit" name="add" class="btn btn-primary">ADD PRODUCT</button>
-	</form>					
+	</form>
 </div>
 @endsection
 

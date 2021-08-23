@@ -10,6 +10,9 @@ use App\Http\Requests\loginRequest;
 use App\Http\Requests\registerRequest;
 use Illuminate\Support\Facades\Auth;
 use Mail;
+use App\City;
+use App\District;
+use App\Ward;
 use Illuminate\Support\Facades\Hash;
 
 class MemberController extends Controller
@@ -49,8 +52,7 @@ class MemberController extends Controller
 	public function account() {
 		$getUserid = Auth::id();
 		$getInfo = User::findOrFail($getUserid);
-		// dd($getInfo);
-		return view('frontend.account',compact('getInfo'));
+		return view('frontend.account',compact('getUserid','getInfo'));
 	}
 	public function update_account(Request $request) {
 		$getUserid = Auth::id();
@@ -65,14 +67,8 @@ class MemberController extends Controller
 			$getInfoUpdate['avatar'] = $avatar;
 			// dd($avatar);
 		}
-		// dd($getInfo);
-
-		if ($getInfo) {
-			$getInfo->update($getInfoUpdate);
-		}
-
-		// dd($getInfoUpdate);
-		return view('frontend.account')->with('getInfo',$getInfo);
+		$getInfo->update($getInfoUpdate);
+		return view('frontend.account',compact('getInfo','getUserid'));
 	}
 	public function redirectToFacebook() {
         return Socialite::driver('facebook')->redirect();

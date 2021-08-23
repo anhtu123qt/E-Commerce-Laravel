@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="{{asset('backend/assets/images/favicon.png')}}">
     <title>Admin</title>
@@ -238,6 +239,12 @@
                         <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{{route('coupon.index')}}" aria-expanded="false">
                             <i class="mdi mdi-minecraft"></i>
                             <span class="hide-menu">Coupon Manager</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{{route('delivery')}}" aria-expanded="false">
+                            <i class="mdi mdi-minecraft"></i>
+                            <span class="hide-menu">Delivery Manager</span>
                         </a>
                     </li>
                     <li class="sidebar-item">

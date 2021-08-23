@@ -1,5 +1,7 @@
 @extends('frontend_layout')
-
+@section('title')
+    Product - E Shopper
+@endsection
 @section('menu-left_frontend_layout')
 <div class="left-sidebar">
 	<h2>ACCOUNT</h2>
@@ -7,24 +9,26 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordian" href="#sportswear">
+					<a href="{{route('member.account')}}">
 						<span class="badge pull-right"><i class="fa fa-plus"></i></span>
 						ACCOUNT
 					</a>
 				</h4>
 			</div>
 		</div>
+        @hasAnyRole(['admin','author'])
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a href="list-product.php">
+					<a href="{{route('product.index')}}">
 						<span class="badge pull-right"><i class="fa fa-plus"></i></span>
 						PRODUCTS
 					</a>
 				</h4>
 			</div>
 		</div>
-	</div><!--/category-products-->				
+        @endhasAnyRole
+	</div><!--/category-products-->
 </div>
 @endsection
 @section('frontend_content')
@@ -63,8 +67,8 @@
 							<h4><a href="">{{$product->product_name}}</a></h4>
 						</td>
 						<td class="cart_product">
-							@foreach(json_decode($product->product_image) as $image)	
-							<a href=""><img src="./upload/product/{{$user_id}}/{{$image}}" width=60px height=50px ></a>
+							@foreach(json_decode($product->product_image) as $image)
+							<a href=""><img src="./upload/product/{{$product->user_id}}/{{$image}}" width=60px height=50px ></a>
 							@endforeach
 						</td>
 						<td class="cart_price">
@@ -78,9 +82,9 @@
 							<form action="{{route('product.destroy',$product->id)}}" method="POST">
 								@csrf
 								@method('DELETE')
-								<button><a><i class="fa fa-times"></i></a></button>	
+								<button><a><i class="fa fa-times"></i></a></button>
 							</form>
-							
+
 						</td>
 					</tr>
 					@endforeach
@@ -90,7 +94,7 @@
 		</div>
 	</div>
 
-</section> <!--/#cart_items-->			
+</section> <!--/#cart_items-->
 </div>
 @endsection
 

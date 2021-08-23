@@ -37,7 +37,7 @@ Checkout | E-Shopper
 
 					}
 				});
-			})
+			});
 
 			$('.cart_quantity_down').click(function(e) {
 				e.preventDefault();
@@ -63,7 +63,7 @@ Checkout | E-Shopper
 						$('#cart').html(data);
 					}
 				});
-			})
+			});
 			$('.cart_quantity_delete').click(function(e) {
 				e.preventDefault();
 				var pid = $(this).prev().val();
@@ -84,8 +84,27 @@ Checkout | E-Shopper
 
 					}
 				})
-			})
-		});
+			});
+                $('.select').on('change',function(){
+                    var attr = $(this).attr('id');
+                    var code = $(this).val();
+                    var _token = $('meta[name="csrf-token"]').attr('content');
+                    var res = '';
+                    if (attr == 'city') {
+                        res = 'district';
+                    }else {
+                        res = 'ward';
+                    }
+                    $.ajax({
+                        url:'{{url('check-out/address-ajax')}}',
+                        method:'POST',
+                        data:{attr:attr,code:code,_token:_token},
+                        success:function(data){
+                            $('#'+res).html(data);
+                        }
+                    });
+                });
+		})
 	</script>
 </head>
 @section('frontend_content')
@@ -160,14 +179,10 @@ Checkout | E-Shopper
 						<td colspan="4">&nbsp;</td>
 						<td colspan="2">
 							<table class="table table-condensed total-result">
-								{{-- <tr>
-									<td>Cart Sub Total</td>
-									<td>$59</td>
-								</tr>
 								<tr>
-									<td>Exo Tax</td>
+									<td>Fee Shipping</td>
 									<td>$2</td>
-								</tr> --}}
+								</tr>
 								<tr>
 									<td>Total</td>
                                     @if(isset($gtotal))
@@ -187,7 +202,7 @@ Checkout | E-Shopper
                                                 <td><span class="gtotal">{{$gTotal}}$</span></td>
                                             @endif
                                         @else
-                                            <td><span class="gtotal">{{$gTotal}}$</span></td>
+                                            <td><span class="gtotal">{{$gtotal}}$</span></td>
                                         @endif
                                     @else
                                         <td><span class="gtotal"></span></td>
@@ -198,21 +213,52 @@ Checkout | E-Shopper
 					</tr>
 				</tbody>
 			</table>
+
 		</div>
-		<div class="payment-options">
-			<span>
-				<label><input type="checkbox"> Direct Bank Transfer</label>
-			</span>
-			<span>
-				<label><input type="checkbox"> Check Payment</label>
-			</span>
-			<span>
-				<label><input type="checkbox"> Paypal</label>
-			</span>
-			<form action="{{route('sendmail')}}" method="GET">
-				<input type="hidden" name="total" value="@if(isset($gTotal))@php echo $gTotal @endphp @endif">
-				<button type="submit" class="btn btn-default order">Order</button>
-			</form>
+            <div class="col-8">
+                <div class="review-payment">
+                    <h2>Delivery</h2>
+                </div>
+                <div style="width:50%">
+                    <div class="mb-3">
+                        <label class="form-label ">City</label>
+                        <select class="form-control select city" name="city_id" id="city" >
+                            <option value="">Select City</option>
+                            @foreach($city as $value)
+                                <option value="{{$value->city_code}}">{{$value->city_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">District</label>
+                        <select class="form-control select district" name="distric_id" id="district" >
+                            <option value="">Select District</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ward</label>
+                        <select  class="form-control" name="ward_id" id="ward" >
+                            <option value="">Select Ward</option>
+                        </select>
+                    </div>
+                    <br>
+                    <button class="btn btn-default btn-success">Tính phí vận chuyển</button>
+                </div>
+            </div>
+{{--            <div class="col-4">--}}
+{{--                <div class="review-payment">--}}
+{{--                    <h2>Payment</h2>--}}
+{{--                </div>&nbsp;--}}
+{{--                <div class="payment-options">--}}
+{{--			        <span><label><input type="checkbox"> Direct Bank Transfer</label></span>--}}
+{{--                    <span><label><input type="checkbox"> Check Payment</label></span>--}}
+{{--                    <span><label><input type="checkbox"> Paypal</label></span>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--			<form action="{{route('sendmail')}}" method="GET">--}}
+{{--				<input type="hidden" name="total" value="@if(isset($gTotal))@php echo $gTotal @endphp @endif">--}}
+{{--				<button type="submit" class="btn btn-default order">Order</button>--}}
+{{--			</form>--}}
 			@endif
 		</div>
 	</div>

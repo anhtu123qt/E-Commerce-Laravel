@@ -18,13 +18,33 @@
     <!--[if lt IE 9]>
     <script src="js/html5shiv.js"></script>
     <script src="js/respond.min.js"></script>
-<![endif]-->       
+    <script>
+        if(screen.width <= 736){
+            document.getElementById("viewport").setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no");
+        }
+    </script>
+    <link type="text/css" rel="stylesheet" href="{{asset('frontend/css/rate.css')}}">
+    <script src="{{asset('frontend/js/jquery-1.9.1.min.js')}}"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $(document).ready(function(){
+          $(this).click(function(){
+            alert('asdsd');
+          });
+        });
+    </script>
+<![endif]-->
 <link rel="shortcut icon" href="images/ico/favicon.ico">
 <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{asset('frontend/images/ico/apple-touch-icon-144-precomposed.png')}}">
 <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{asset('frontend/images/ico/apple-touch-icon-114-precomposed.png')}}">
 <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{asset('frontend/images/ico/apple-touch-icon-72-precomposed.png')}}">
 <link rel="apple-touch-icon-precomposed" href="{{asset('frontend/images/ico/apple-touch-icon-57-precomposed.png')}}">
 </head><!--/head-->
+
 
 <body>
 	@include('header_frontend_layout')
@@ -35,15 +55,15 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-sm-3">
-					@yield('menu-left_frontend_layout')	
+					@yield('menu-left_frontend_layout')
 				</div>
 				@yield('frontend_content')
 			</div>
 		</div>
 	</section>
-	
-	@include('footer_frontend_layout')	
-	
+
+	@include('footer_frontend_layout')
+
 
 	<script src="{{asset('frontend/js/sweetalert.min.js')}}"></script>
 	<script src="{{asset('frontend/js/jquery.js')}}"></script>

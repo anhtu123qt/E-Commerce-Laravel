@@ -15,10 +15,12 @@ use Illuminate\Support\Facades\Route;
 // Frontend
 Route::get('index','Frontend\HomeController@index')->name('homepage');
 Route::get('detail/{id}','Frontend\HomeController@detail')->name('detail');
+// Search
 Route::post('search-ajax','Frontend\HomeController@search_ajax');
 Route::get('search','Frontend\HomeController@search')->name('search');
 Route::get('search-advanced','Frontend\HomeController@search_advanced')->name('search.advanced');
 Route::post('search-adv','Frontend\HomeController@search_adv')->name('search_adv');
+// Cart
 Route::post('add-to-cart','Frontend\CartController@addToCart');
 Route::get('show-cart','Frontend\CartController@showCart');
 Route::post('update-cart-up-qty','Frontend\CartController@updateCartQtyUp');
@@ -27,11 +29,13 @@ Route::get('delete-product','Frontend\CartController@deleteProduct');
 // Checkout - Sendmail
 Route::get('check-out','Frontend\CartController@checkout')->name('checkout');
 Route::get('send-mail','Frontend\CartController@sendmail')->name('sendmail');
+// Member
 Route::get('member','Frontend\MemberController@index')->name('member');
 Route::post('member/register','Frontend\MemberController@register')->name('member.register');
 Route::post('member/login','Frontend\MemberController@login')->name('member.login');
 Route::get('member/account','Frontend\MemberController@account')->name('member.account');
 Route::post('member/account/update','Frontend\MemberController@update_account')->name('member.update');
+// Blog
 Route::get('blog/list','Frontend\BlogController@list')->name('blog.list');
 Route::get('blog/single/{id}','Frontend\BlogController@single')->name('blog.single');
 Route::post('rating','Frontend\BlogController@saveRating')->name('blog.single.rating');
@@ -39,7 +43,7 @@ Route::post('load-cmt','Frontend\BlogController@load_cmt');
 Route::post('add-cmt','Frontend\BlogController@add_cmt');
 Route::post('add-reply','Frontend\BlogController@add_reply');
 // Product
-Route::resource('product',Frontend\ProductController::class);
+Route::resource('product',Frontend\ProductController::class)->middleware('auth.role');
 Route::get('home', 'HomeController@index')->name('home');
 // Login with FB
 Route::get('member/facebook','Frontend\MemberController@redirectToFacebook')->name('login.facebook');
@@ -54,6 +58,8 @@ Route::get('recovery-password','Frontend\MemberController@recovery_password')->n
 Route::get('update-password','Frontend\MemberController@update_password')->name('update_password');
 // Coupon
 Route::get('check-coupon','Frontend\CartController@checkCoupon')->name('checkCoupon');
+// Delivery fee
+Route::post('check-out/address-ajax','Frontend\CartController@address_ajax')->name('address.ajax');
 Auth::routes();
 
 // Backend
@@ -80,6 +86,11 @@ Route::group(['middleware'=> 'auth.role'], function(){
     Route::post('assign-role','Admin\UserController@assign_role')->name('assign_role');
     Route::get('delete-user-role/{id}','Admin\UserController@delete_user_role')->name('delete_user_role');
     Route::resource('coupon',Admin\CouponController::class);
+    Route::get('delivery-manager','Admin\DeliveryController@delivery')->name('delivery');
+    Route::post('address-ajax','Admin\DeliveryController@address_ajax');
+    Route::post('add-feeship','Admin\DeliveryController@add_feeship');
+    Route::post('feeship-ajax','Admin\DeliveryController@feeship_ajax');
+    Route::post('update-feeship','Admin\DeliveryController@update_feeship');
 });
 
 

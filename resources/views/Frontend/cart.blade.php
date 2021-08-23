@@ -193,6 +193,7 @@ My Cart
                                 @if(session('coupon')['coupon_type'] == 'percentage')
                                     <li>Giảm giá <span>{{session('coupon')['coupon_amount']}}%</span></li>
                                 @php
+                                    $gTotal = 0;
                                     // luong giam gia
                                     $cAmount = ($gtotal * session('coupon')['coupon_amount'])/100;
                                     // so tien can thanh toan sau giam gia
@@ -207,7 +208,7 @@ My Cart
                                     <li>Thành tiền <span class="gtotal">{{$gTotal}}$</span></li>
                                 @endif
                             @else
-                                <li>Thành tiền <span class="gtotal">{{$gTotal}}$</span></li>
+                                <li>Thành tiền <span class="gtotal">{{$gtotal}}$</span></li>
                             @endif
                         @else
                             <li>Thành tiền <span class="gtotal"></span></li>

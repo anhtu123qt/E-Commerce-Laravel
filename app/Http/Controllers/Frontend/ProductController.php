@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File; 
+use Illuminate\Support\Facades\File;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\User;
@@ -67,6 +67,7 @@ class ProductController extends Controller
             }
         }
         $new_product= new Product();
+        $new_product->user_id = $user_id;
         $new_product->product_name = $request->name;
         $new_product->product_price = $request->price;
         $new_product->product_category = $request->selCate;
@@ -76,7 +77,7 @@ class ProductController extends Controller
         $new_product->product_detail = $request->detail;
         $new_product->product_image=json_encode($data);
         $new_product->save();
-        return redirect()->route('product.index')->with('success','Them san pham thanh cong');    
+        return redirect()->route('product.index')->with('success','Them san pham thanh cong');
     }
 
     /**
@@ -104,7 +105,7 @@ class ProductController extends Controller
         $brand =Product::findOrFail($id)->brands;
         $allCategory = Category::all();
         $allBrand = Brand::all();
-        return view('frontend.edit_product',compact('getProduct','brand','category','allCategory','allBrand','user_id'));     
+        return view('frontend.edit_product',compact('getProduct','brand','category','allCategory','allBrand','user_id'));
     }
 
     /**
@@ -145,7 +146,7 @@ class ProductController extends Controller
             // k xoa k them
             else {
                 $imgNew = $imgOld;
-            };   
+            };
             // them
             if ($request->hasFile('filename')) {
                 foreach($request->file('filename') as $image) {
@@ -167,7 +168,7 @@ class ProductController extends Controller
             // check dk > 3
             if (count($imgNew) > 3) {
                 return redirect()->back()->with('success','Hinh anh khong duoc lon hon 3');
-            } 
+            }
             $product->product_name = $request->input('name');
             $product->product_price = $request->input('price');
             $product->product_category = $request->input('selCate');
@@ -178,7 +179,7 @@ class ProductController extends Controller
             $product->product_detail = $request->input('detail');
             $product->save();
         }
-        return redirect()->back()->with('success','Update thanh cong');    
+        return redirect()->back()->with('success','Update thanh cong');
     }
 
     /**

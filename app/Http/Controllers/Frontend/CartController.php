@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\District;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -9,6 +10,9 @@ use App\User;
 use App\History;
 use Mail;
 use App\Coupon;
+use App\Ward;
+use App\City;
+
 
 class CartController extends Controller
 {
@@ -69,7 +73,8 @@ class CartController extends Controller
         echo 'Cart('.count(session('cart')).')';
     }
     public function checkout() {
-        return view('frontend.checkout');
+        $city = City::orderBy('city_code','ASC')->get();
+        return view('frontend.checkout',compact('city'));
     }
     public function sendmail(Request $request) {
         if(Auth::check()) {
@@ -137,5 +142,26 @@ class CartController extends Controller
         }else {
             return redirect()->back()->with('error','Không tồn tại mã giảm giá');
         }
+    }
+    public function address_ajax(Request $request)
+    {
+        $data = $request->all();
+        $output = '';
+        if ($data['attr']) {
+            if ($data['attr'] == 'city') {
+                $getDistrict = District::where('city_code', $data['code'])->get();
+                $output .= '<option>Select District</option>';
+                foreach ($getDistrict as $district) {
+                    $output .= '<option value="' . $district->district_id . '">' . $district->district_name . '</option>';
+                }
+            }else {
+                $getWard = Ward::where('district_id', $data['code'])->get();
+                $output .= '<option>Select Ward</option>';
+                foreach ($getWard as $ward) {
+                    $output .= '<option value="'.$ward->ward_id.'">'.$ward->ward_name.'</option>';
+                }
+            }
+        }
+        echo $output;
     }
 }
