@@ -26,9 +26,6 @@ Route::get('show-cart','Frontend\CartController@showCart');
 Route::post('update-cart-up-qty','Frontend\CartController@updateCartQtyUp');
 Route::post('update-cart-down-qty','Frontend\CartController@updateCartQtyDown');
 Route::get('delete-product','Frontend\CartController@deleteProduct');
-// Checkout - Sendmail
-Route::get('check-out','Frontend\CartController@checkout')->name('checkout');
-Route::get('send-mail','Frontend\CartController@sendmail')->name('sendmail');
 // Member
 Route::get('member','Frontend\MemberController@index')->name('member');
 Route::post('member/register','Frontend\MemberController@register')->name('member.register');
@@ -58,8 +55,16 @@ Route::get('recovery-password','Frontend\MemberController@recovery_password')->n
 Route::get('update-password','Frontend\MemberController@update_password')->name('update_password');
 // Coupon
 Route::get('check-coupon','Frontend\CartController@checkCoupon')->name('checkCoupon');
+Route::get('delete-cp','Frontend\CartController@delete_cp');
 // Delivery fee
 Route::post('check-out/address-ajax','Frontend\CartController@address_ajax')->name('address.ajax');
+Route::post('check-out/calc-feeship-ajax','Frontend\CartController@calc_feeship_ajax');
+Route::get('delete-feeship','Frontend\CartController@delete_feeship');
+// Checkout - Sendmail
+Route::get('check-out','Frontend\CartController@checkout')->name('checkout');
+Route::post('send-mail','Frontend\CartController@sendmail')->name('sendmail');
+Route::get('paypal','Frontend\CartController@paypal');
+Route::get('thanks','Frontend\CartController@thanks');
 Auth::routes();
 
 // Backend
@@ -78,8 +83,6 @@ Route::resource('blog',Admin\BlogController::class);
 Route::resource('category',Admin\CategoryController::class);
 // Brand
 Route::resource('brand',Admin\BrandController::class);
-// Order History
-Route::get('order-history','FrontEnd\CartController@orderHistory');
 Route::group(['middleware'=> 'auth.role'], function(){
     //Authorization
     Route::get('user_manager','Admin\UserController@user_manager')->name('user_manager');
@@ -91,6 +94,10 @@ Route::group(['middleware'=> 'auth.role'], function(){
     Route::post('add-feeship','Admin\DeliveryController@add_feeship');
     Route::post('feeship-ajax','Admin\DeliveryController@feeship_ajax');
     Route::post('update-feeship','Admin\DeliveryController@update_feeship');
+    // Order History
+    Route::get('order-history','Admin\OrderController@orderHistory');
+    Route::get('order-detail/{id}','Admin\OrderController@orderDetail');
+    Route::post('order-detail/update-order-status','Admin\OrderController@update_orderStatus')->name('update.order_status');
 });
 
 

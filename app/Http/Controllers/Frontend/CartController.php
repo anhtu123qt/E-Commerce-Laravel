@@ -7,12 +7,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\User;
-use App\History;
+use App\Order;
 use Mail;
 use App\Coupon;
 use App\Ward;
 use App\City;
-
+use App\FeeShip;
+use App\OrderDetail;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -70,6 +72,8 @@ class CartController extends Controller
             unset($cart[$data['pid']]);
         }
         session()->put('cart',$cart);
+        session()->forget('coupon');
+        session()->forget('feeship');
         echo 'Cart('.count(session('cart')).')';
     }
     public function checkout() {
@@ -78,41 +82,63 @@ class CartController extends Controller
     }
     public function sendmail(Request $request) {
         if(Auth::check()) {
-            $gtotal =$request->input('total');
-            $order = rand();
-            $user_id = Auth::id();
-            $user_info= User::findOrFail($user_id);
-            $cart = session('cart');
-            $to_name = 'E-Shopper';
-            $to_email = $user_info->email;
-            // dd($gtotal);exit;
-            $data = array(
-                'name' => 'Trong cuộc sống có rất nhiều sự lựa chọn cám ơn ' .$user_info->name. ' đã lựa chọn E-Shopper. E-Shopper rất vui thông báo đơn hàng #'.$order.' của quý khách đã được tiếp nhận và đang trong quá trình xử lý. E-Shopper sẽ gửi email thông báo đến quý khách khi đơn hàng được đóng gói và chuyển sang đơn vị vận chuyển.',
-                'order' => $order,
-                'gtotal'=>$gtotal,
-                'address' =>$user_info->address,
-                'phone'=>$user_info->phone
-            );
+            $user = Auth::user();
+            $coupon = session('coupon');
+            $feeship = session('feeship');
+            $carts = session('cart');
+            $data = $request->all();
+            $total = $data['total_paypal'];
+            if (isset($data['paypal_payment'])) {
+                return view('frontend.paypal', compact('total', 'user', 'feeship', 'cart'));
+            }
+            if (isset($data['cod_payment'])) {
+                $newOrder = new Order();
+                $newOrder->user_id = $user['id'];
+                $newOrder->shipping_charges = $feeship['fee'];
+                $newOrder->shipping_city = $feeship['city'];
+                $newOrder->shipping_district = $feeship['district'] ;
+                $newOrder->shipping_ward = $feeship['ward'] ;
+                $newOrder->shipping_address_detail = $user['address'] ;
+                $newOrder->phone = $user['phone'] ;
+                $newOrder->coupon_code = $coupon['coupon'];
+                $newOrder->coupon_type = $coupon['coupon_type'];
+                $newOrder->coupon_amount = $coupon['coupon_amount'];
+                $newOrder->order_status = 'New';
+                $newOrder->payment_method = 'COD';
+                $newOrder->grand_total = $total;
+                $newOrder->save();
 
-            Mail::send('frontend.send_mail',$data,function($message) use($to_name,$to_email){
-                $message->to($to_email)->subject('Thông báo đơn hàng của quý khách đã được tiếp nhận!');
-                $message->from($to_email,$to_name);
-            });
-            $newOrder = new History();
-            $newOrder->email = $user_info['email'];
-            $newOrder->phone = $user_info['phone'];
-            $newOrder->name = $user_info['name'];
-            $newOrder->user_id = $user_id;
-            $newOrder->total = $gtotal;
-            $newOrder->save();
-            session()->forget('cart');
-            session()->forget('coupon');
-            return redirect()->back()->with('success','Đơn hàng của bạn đã được tiếp nhận!');
+                 $orderId= DB::getPdo()->lastInsertId();
+                foreach($carts as $cart){
+                    $orderDetail = new OrderDetail();
+                    $orderDetail->order_id = $orderId;
+                    $orderDetail->product_id = $cart['product_id'];
+                    $orderDetail->product_name = $cart['product_name'];
+                    $orderDetail->product_qty = $cart['product_qty'];
+                    $orderDetail->product_price = $cart['product_price'];
+                    $orderDetail->save();
+                }
+                $to_name = 'E-Shopper';
+                $to_email = $user->email;
+                $payment = 'COD';
+
+                Mail::send('frontend.send_mail',['coupon'=> $coupon,'feeship'=>$feeship,'user'=>$user,'total'=>$total,'orderId'=>$orderId,'payment'=>$payment], function ($message) use ($to_name, $to_email) {
+                    $message->to($to_email)->subject('Thông báo đơn hàng của quý khách đã được tiếp nhận!');
+                    $message->from($to_email, $to_name);
+                });
+                session()->forget('cart');
+                session()->forget('coupon');
+                session()->forget('feeship');
+                return redirect()->back()->with('success', 'Đơn hàng của bạn đã được tiếp nhận!');
+            }
         }
     }
-    public function orderHistory(){
-        $orders = History::all();
-        return view('admin.order_history',compact('orders',$orders));
+    public function paypal(Request $request){
+        $data= $request->all();
+        dd($data);
+    }
+    public function thanks(){
+        return view('frontend.thank');
     }
     public function checkCoupon(Request $request) {
         $data = $request->all();
@@ -143,6 +169,12 @@ class CartController extends Controller
             return redirect()->back()->with('error','Không tồn tại mã giảm giá');
         }
     }
+    public function delete_cp(Request $request){
+        $data = $request->all();
+        if($data['delete_cp']){
+            session()->forget('coupon');
+        }
+    }
     public function address_ajax(Request $request)
     {
         $data = $request->all();
@@ -163,5 +195,42 @@ class CartController extends Controller
             }
         }
         echo $output;
+    }
+    public function calc_feeship_ajax(Request $request){
+        $data = $request->all();
+        $feeship = FeeShip::where('city_id',$data['city_id'])->where('district_id',$data['district_id'])->where('ward_id',$data['ward_id'])->first();
+        $fee=$feeship->feeship;
+        if($feeship){
+            session()->get('feeship');
+            $is_avai = 1;
+            if (session('feeship')) {
+                if($is_avai == 1) {
+                    $feeInfo = array(
+                        'fee' => $fee,
+                        'city' => $feeship->city->city_name,
+                        'district' => $feeship->district->district_name,
+                        'ward' => $feeship->ward->ward_name
+                    );
+                    session()->put('feeship',$feeInfo);
+                }
+            }else {
+                $feeInfo = array(
+                    'fee' => $fee,
+                    'city' => $feeship->city->city_name,
+                    'district' => $feeship->district->district_name,
+                    'ward' => $feeship->ward->ward_name
+                );
+                session()->put('feeship',$feeInfo);
+            }
+            session()->save();
+        }
+        $output = $fee.'$';
+        echo $output;
+    }
+    public function delete_feeship(Request $request){
+        $data = $request->all();
+        if($data['delete_feeship']){
+            session()->forget('feeship');
+        }
     }
 }

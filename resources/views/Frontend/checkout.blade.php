@@ -85,25 +85,73 @@ Checkout | E-Shopper
 					}
 				})
 			});
-                $('.select').on('change',function(){
-                    var attr = $(this).attr('id');
-                    var code = $(this).val();
-                    var _token = $('meta[name="csrf-token"]').attr('content');
-                    var res = '';
-                    if (attr == 'city') {
+            $('.select').on('change',function(){
+                var attr = $(this).attr('id');
+                var code = $(this).val();
+                var _token = $('meta[name="csrf-token"]').attr('content');
+                var res = '';
+                if (attr == 'city') {
                         res = 'district';
-                    }else {
+                }else {
                         res = 'ward';
+                }
+                $.ajax({
+                    url:'{{url('check-out/address-ajax')}}',
+                    method:'POST',
+                    data:{attr:attr,code:code,_token:_token},
+                    success:function(data){
+                        $('#'+res).html(data);
                     }
-                    $.ajax({
-                        url:'{{url('check-out/address-ajax')}}',
-                        method:'POST',
-                        data:{attr:attr,code:code,_token:_token},
-                        success:function(data){
-                            $('#'+res).html(data);
-                        }
-                    });
                 });
+            });
+            $('.btn-calc_feeship').click(function(){
+                var city_id = $('.city').val();
+                var district_id = $('.district').val();
+                var ward_id = $('.ward').val();
+                var _token = $('meta[name="csrf-token"]').attr('content');
+                $.ajax({
+                    url:'{{url('check-out/calc-feeship-ajax')}}',
+                    method:'POST',
+                    data:{city_id:city_id,district_id:district_id,ward_id:ward_id,_token:_token},
+                    success:function(data){
+                       location.reload(data);
+                    }
+                })
+            });
+            $('.delete-cp').click(function(e) {
+                e.preventDefault();
+                var delete_cp = true;
+                var _token = $('meta[name="csrf-token"]').attr('content');
+                $.ajax({
+                    url:"{{url('delete-cp')}}",
+                    type:"GET",
+                    data:{delete_cp:delete_cp,_token:_token},
+                    success:function(){
+                        location.reload();
+                    }
+                })
+            })
+            $('.delete-feeship').click(function(e) {
+                e.preventDefault();
+                var delete_feeship = true;
+                var _token = $('meta[name="csrf-token"]').attr('content');
+                $.ajax({
+                    url:"{{url('delete-feeship')}}",
+                    type:"GET",
+                    data:{delete_feeship:delete_feeship,_token:_token},
+                    success:function(){
+                        location.reload();
+                    }
+                })
+            })
+            $('.check_cod').click(function(){
+                $('.check_cod').prop('checked',true);
+                $('.check_paypal').prop('checked',false);
+            })
+            $('.check_paypal').click(function(){
+                $('.check_cod').prop('checked',false);
+                $('.check_paypal').prop('checked',true);
+            })
 		})
 	</script>
 </head>
@@ -125,6 +173,12 @@ Checkout | E-Shopper
 			{{session('success')}}
 		</div>
 		@endif
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible">
+                <h4><i class="icon fa fa-check"></i> Thông báo!</h4>
+                {{session('error')}}
+            </div>
+        @endif
 		<div class="table-responsive cart_info">
 			<table class="table table-condensed">
 				<thead>
@@ -178,48 +232,110 @@ Checkout | E-Shopper
 					<tr>
 						<td colspan="4">&nbsp;</td>
 						<td colspan="2">
+                            @if(isset($gtotal))
 							<table class="table table-condensed total-result">
+                                @if(session('coupon'))
+                                <tr class="cp">
+                                    <td><a class="delete-cp" href=""><i class="fa fa-times"></i></a>Mã giảm giá</td>
+                                    <td>{{session('coupon')['coupon']}}</td>
+                                </tr>
+                                    <tr class="cp-amount">
+                                        <td>Lượng giảm giá</td>
+                                        @if(session('coupon')['coupon_type'] == 'percentage')
+                                            @php
+                                                // luong giam gia
+                                                $amount = ($gtotal * session('coupon')[ 'coupon_amount'])/100;
+                                            @endphp
+                                            <td>{{session('coupon')['coupon_amount']}}% ( {{$amount}}$ )</td>
+                                        @else
+                                            <td>{{session('coupon')['coupon_amount']}}$</td>
+                                        @endif
+                                    </tr>
+                                @endif
+                                @if(session('feeship'))
+                                <tr class="fship">
+                                    <td><a class="delete-feeship" href=""><i class="fa fa-times"></i></a>Phí vận chuyển</td>
+                                    <td id="fee">{{session('feeship')['fee']}}$</td>
+                                </tr>
+                                @endif
 								<tr>
-									<td>Fee Shipping</td>
-									<td>$2</td>
-								</tr>
-								<tr>
-									<td>Total</td>
-                                    @if(isset($gtotal))
-                                        @if(session('coupon'))
+									<td>Tổng cộng</td>
+
+                                        @if(session('coupon') && !session('feeship'))
                                             @if(session('coupon')['coupon_type'] == 'percentage')
                                                 @php
                                                     // luong giam gia
-                                                    $cAmount = ($gtotal * session('coupon')['coupon_amount'])/100;
+                                                    $amount = ($gtotal * session('coupon')[ 'coupon_amount'])/100;
                                                     // so tien can thanh toan sau giam gia
-                                                    $gTotal = $gtotal - $cAmount;
+                                                    $gtotal_after_cp = $gtotal - $amount;
                                                 @endphp
-                                                <td><span class="gtotal">{{$gTotal}}$</span></td>
-                                            @elseif(session('coupon')['coupon_type'] == 'fixed')
+                                                    <td><span class="gtotal">{{$gtotal_after_cp}}$ = ( {{$gtotal}}$ - {{$amount}}$ )</span></td>
+                                            @else
                                                 @php
-                                                    $gTotal = $gtotal - session('coupon')['coupon_amount'];
+                                                    $gtotal_after_cp = $gtotal - session('coupon')['coupon_amount'];
                                                 @endphp
-                                                <td><span class="gtotal">{{$gTotal}}$</span></td>
+                                                    <td><span class="gtotal">{{$gtotal_after_cp}}$ = ( {{$gtotal}}$ - {{session('coupon')['coupon_amount']}}$ )</span></td>
                                             @endif
-                                        @else
-                                            <td><span class="gtotal">{{$gtotal}}$</span></td>
                                         @endif
-                                    @else
+
+                                        @if(!session('coupon') && session('feeship'))
+                                            @php
+                                                $gtotal_after_fee = $gtotal + session('feeship')['fee'];
+                                            @endphp
+                                            <td><span class="gtotal">{{$gtotal_after_fee}}$ = ( {{$gtotal}}$ + {{session('feeship')['fee']}}$ )</span></td>
+                                        @endif
+
+                                        @if(session('coupon') && session('feeship'))
+                                            @if(session('coupon')['coupon_type'] == 'percentage')
+                                                @php
+                                                    // luong giam gia cp
+                                                    $cp_amount = ($gtotal * session('coupon')[ 'coupon_amount'])/100;
+                                                    // so tien can thanh toan sau giam gia + phi van chuuyen
+                                                    $gtotal_after = $gtotal - $cp_amount + session('feeship')['fee'];
+                                                @endphp
+                                                <td><span class="gtotal">{{$gtotal_after}}$ = ( {{$gtotal}}$ - {{$cp_amount}}$ + {{session('feeship')['fee']}}$ )</span></td>
+                                            @else
+                                                @php
+                                                    $gtotal_after = $gtotal - session('coupon')['coupon_amount'] + session('feeship')['fee'];
+                                                @endphp
+                                                <td><span class="gtotal">{{$gtotal_after}}$ = ( {{$gtotal}}$ - {{session('coupon')['coupon_amount']}}$ + {{session('feeship')['fee']}}$ )</span></td>
+                                            @endif
+                                        @endif
+                                        @if(!session('coupon') && !session('feeship'))
+                                            @php
+                                                $gtotal_after = $gtotal;
+                                            @endphp
+                                            <td><span class="gtotal">{{$gtotal_after}}$ = ( {{$gtotal}} - 0$ - 0$ )</span></td>
+                                        @endif
+                            @else
                                         <td><span class="gtotal"></span></td>
-                                    @endif
+                            @endif
 								</tr>
 							</table>
 						</td>
 					</tr>
 				</tbody>
 			</table>
-
 		</div>
-            <div class="col-8">
+        <div>
+        <div class="row">
+            <div class="col">
+                <div class="review-payment">
+                    <h2>Coupon</h2>
+                </div>
+                <form action="{{route('checkCoupon')}}" method="GET">
+                    @csrf
+                    @method('GET')
+                    <label for="">Coupon code :</label>
+                    <input autocomplete="off" type="text" name="coupon_code" placeholder="Enter the Coupon Code">&nbsp;
+                    <button type="submit" class="btn btn-sm btn-success">Hoàn thành</button>
+                </form>
+            </div>
+            <div class="col">
                 <div class="review-payment">
                     <h2>Delivery</h2>
                 </div>
-                <div style="width:50%">
+                <div style="width:100%">
                     <div class="mb-3">
                         <label class="form-label ">City</label>
                         <select class="form-control select city" name="city_id" id="city" >
@@ -237,28 +353,31 @@ Checkout | E-Shopper
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Ward</label>
-                        <select  class="form-control" name="ward_id" id="ward" >
+                        <select  class="form-control ward" name="ward_id" id="ward" >
                             <option value="">Select Ward</option>
                         </select>
                     </div>
                     <br>
-                    <button class="btn btn-default btn-success">Tính phí vận chuyển</button>
+                    <button class="btn btn-default btn-success btn-calc_feeship">Tính phí vận chuyển</button>
                 </div>
             </div>
-{{--            <div class="col-4">--}}
-{{--                <div class="review-payment">--}}
-{{--                    <h2>Payment</h2>--}}
-{{--                </div>&nbsp;--}}
-{{--                <div class="payment-options">--}}
-{{--			        <span><label><input type="checkbox"> Direct Bank Transfer</label></span>--}}
-{{--                    <span><label><input type="checkbox"> Check Payment</label></span>--}}
-{{--                    <span><label><input type="checkbox"> Paypal</label></span>--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--			<form action="{{route('sendmail')}}" method="GET">--}}
-{{--				<input type="hidden" name="total" value="@if(isset($gTotal))@php echo $gTotal @endphp @endif">--}}
-{{--				<button type="submit" class="btn btn-default order">Order</button>--}}
-{{--			</form>--}}
+            <div class="col">
+                <div class="review-payment">
+                    <h2>Payment</h2>
+                </div>&nbsp;
+                <div>
+                    <form action="{{route('sendmail')}}" method="POST">
+                        @csrf
+                        <div class="payment-options">
+                            <span><label><input class="check_cod" name="cod_payment" type="radio"> COD</label></span>
+                            <span><label><input class="check_paypal" name="paypal_payment" type="radio"> Paypal</label></span>
+                        <input type="hidden" name="total_paypal" value="@if(isset($gtotal_after))@php echo $gtotal_after @endphp @endif">
+                        <button type="submit" class="btn btn-default order">Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        </div>
 			@endif
 		</div>
 	</div>

@@ -18,14 +18,16 @@ class HomeController extends Controller
         $products = Product::latest()->get();
 
         return view('frontend.index', [
-            'user_id'  => $user->id,
+            'user_id' => $user->id,
             'products' => $products
         ]);
     }
     public function detail($id) {
         $getProDetail = Product::findOrFail($id);
-        $getBrand = $getProDetail->brands ?? [];
+        $getBrand = Product::findOrFail($id)->brands;
+        // dd($brand->brand);
         $user_id = Auth::id();
+        // dd(json_decode($getProDetail->product_image));
         return view('frontend.detail',compact('getProDetail','user_id','getBrand'));
     }
     public function search_ajax(Request $request) {

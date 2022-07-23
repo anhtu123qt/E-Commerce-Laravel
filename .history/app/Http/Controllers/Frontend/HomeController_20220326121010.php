@@ -24,7 +24,7 @@ class HomeController extends Controller
     }
     public function detail($id) {
         $getProDetail = Product::findOrFail($id);
-        $getBrand = $getProDetail->brands ?? [];
+        $getBrand = Product::findOrFail($id)->brands;
         $user_id = Auth::id();
         return view('frontend.detail',compact('getProDetail','user_id','getBrand'));
     }

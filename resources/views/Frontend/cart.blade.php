@@ -85,6 +85,52 @@ My Cart
 					}
 				})
 			})
+            {{--$('.select').on('change',function(){--}}
+            {{--    var attr = $(this).attr('id');--}}
+            {{--    var code = $(this).val();--}}
+            {{--    var _token = $('meta[name="csrf-token"]').attr('content');--}}
+            {{--    var res = '';--}}
+            {{--    if (attr == 'city') {--}}
+            {{--        res = 'district';--}}
+            {{--    }else {--}}
+            {{--        res = 'ward';--}}
+            {{--    }--}}
+            {{--    $.ajax({--}}
+            {{--        url:'{{url('cart/address-ajax')}}',--}}
+            {{--        method:'POST',--}}
+            {{--        data:{attr:attr,code:code,_token:_token},--}}
+            {{--        success:function(data){--}}
+            {{--            $('#'+res).html(data);--}}
+            {{--        }--}}
+            {{--    });--}}
+            {{--});--}}
+            {{--$('.btn-calc_feeship').click(function(){--}}
+            {{--    var city_id = $('.city').val();--}}
+            {{--    var district_id = $('.district').val();--}}
+            {{--    var ward_id = $('.ward').val();--}}
+            {{--    var _token = $('meta[name="csrf-token"]').attr('content');--}}
+            {{--    $.ajax({--}}
+            {{--        url:'{{url('cart/calc-feeship-ajax')}}',--}}
+            {{--        method:'POST',--}}
+            {{--        data:{city_id:city_id,district_id:district_id,ward_id:ward_id,_token:_token},--}}
+            {{--        success:function(data){--}}
+            {{--            $('#fee-value').html(data);--}}
+            {{--        }--}}
+            {{--    })--}}
+            {{--});--}}
+            {{--$('.update').click(function(e) {--}}
+            {{--    e.preventDefault();--}}
+            {{--    var check_cp = $('.del-cp').prop('checked');--}}
+            {{--    var _token = $('meta[name="csrf-token"]').attr('content');--}}
+            {{--    $.ajax({--}}
+            {{--        url:"{{url('delete-cp')}}",--}}
+            {{--        type:"POST",--}}
+            {{--        data:{check_cp:check_cp,_token:_token},--}}
+            {{--        success:function(data){--}}
+            {{--            location.reload(data);--}}
+            {{--        }--}}
+            {{--    })--}}
+            {{--})--}}
 		});
 	</script>
 </head>
@@ -159,29 +205,7 @@ My Cart
 <section id="do_action">
 	<div class="container">
 		<div class="row">
-			<div class="col-sm-6">
-				<div class="chose_area">
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible">
-                            <h4><i class="icon fa fa-check"></i> Thông báo!</h4>
-                            {{session('success')}}
-                        </div>
-                    @endif
-                    @if(session('error'))
-                            <div class="alert alert-danger alert-dismissible">
-                                <h4><i class="icon fa fa-check"></i> Thông báo!</h4>
-                                {{session('error')}}
-                            </div>
-                        @endif
-                    <form action="{{route('checkCoupon')}}" method="GET">
-                        @csrf
-                        @method('GET')
-                        <label for="">Coupon code :</label>
-                        <input autocomplete="off" type="text" name="coupon_code" placeholder="Enter the Coupon Code">&nbsp;
-                        <button type="submit" class="btn btn-sm btn-success">Hoàn thành</button>
-                    </form>
-				</div>
-			</div>
+            <div class="col-sm-6"></div>
 			<div class="col-sm-6">
 				<div class="total_area">
 					<ul>
@@ -189,7 +213,7 @@ My Cart
 						<li>Eco Tax <span>$2</span></li> --}}
                         @if(isset($gtotal))
                             @if(session('coupon'))
-                                <li>Coupon Code <span>{{session('coupon')['coupon']}}</span></li>
+                                <li><input class="del-cp" type="checkbox">&nbsp;Coupon Code <span>{{session('coupon')['coupon']}}</span></li>
                                 @if(session('coupon')['coupon_type'] == 'percentage')
                                     <li>Giảm giá <span>{{session('coupon')['coupon_amount']}}%</span></li>
                                 @php
@@ -214,7 +238,7 @@ My Cart
                             <li>Thành tiền <span class="gtotal"></span></li>
                         @endif
 					</ul>
-					<a class="btn btn-default update" href="">Update</a>
+					<a class="btn btn-default update" href="{{URL::asset('index')}}">Back</a>
 					<a class="btn btn-default check_out" href="{{URL::asset('check-out')}}">Check Out</a>
 				</div>
 			</div>

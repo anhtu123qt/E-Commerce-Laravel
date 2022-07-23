@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Frontend;
-
 use App\User;
 use App\Product;
 use App\Category;
@@ -14,18 +13,16 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
     public function index() {
-        $user = auth()->user();
         $products = Product::latest()->get();
-
-        return view('frontend.index', [
-            'user_id'  => $user->id,
-            'products' => $products
-        ]);
+        $user_id = Auth::id();
+        return view('frontend.index',compact('products'),compact('user_id'));
     }
     public function detail($id) {
         $getProDetail = Product::findOrFail($id);
-        $getBrand = $getProDetail->brands ?? [];
+        $getBrand = Product::findOrFail($id)->brands;
+        // dd($brand->brand);
         $user_id = Auth::id();
+        // dd(json_decode($getProDetail->product_image));
         return view('frontend.detail',compact('getProDetail','user_id','getBrand'));
     }
     public function search_ajax(Request $request) {
